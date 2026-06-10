@@ -303,6 +303,50 @@ button {
   grid-column: 1 / -1;
 }
 
+.filter-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.filter-field {
+  display: grid;
+  gap: 4px;
+}
+
+.filter-field span {
+  color: #52616d;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.filter-field select {
+  border: 1px solid #d6dee3;
+  border-radius: 8px;
+  min-height: 36px;
+  padding: 0 10px;
+  background: #ffffff;
+  color: #20252b;
+  font-size: 13px;
+  min-width: 140px;
+}
+
+.filter-clear {
+  border: 0;
+  border-radius: 8px;
+  min-height: 36px;
+  padding: 0 14px;
+  background: #f1f5f4;
+  color: #2b6f73;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.filter-clear:hover {
+  background: #e2ecec;
+}
+
 .table-wrap {
   overflow-x: auto;
 }

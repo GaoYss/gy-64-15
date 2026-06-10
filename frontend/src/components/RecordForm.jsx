@@ -1,12 +1,19 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 
-function initialValue(field) {
+function initialValue(field, defaultValues) {
+  if (defaultValues && defaultValues[field.name] !== undefined) {
+    return defaultValues[field.name];
+  }
   if (field.type === "number") return 0;
   if (field.type === "select") return field.options[0];
   if (field.type === "date") return new Date().toISOString().slice(0, 10);
   if (field.type === "datetime-local") return new Date().toISOString().slice(0, 16);
   return "";
+}
+
+function buildInitialValues(fields, defaultValues) {
+  return fields.reduce((next, field) => ({ ...next, [field.name]: initialValue(field, defaultValues) }), {});
 }
 
 function normalize(fields, values) {
@@ -17,12 +24,10 @@ function normalize(fields, values) {
   }, {});
 }
 
-export function RecordForm({ title, fields, onSubmit }) {
+export function RecordForm({ title, fields, onSubmit, defaultValues }) {
   const [expanded, setExpanded] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [values, setValues] = useState(() =>
-    fields.reduce((next, field) => ({ ...next, [field.name]: initialValue(field) }), {}),
-  );
+  const [values, setValues] = useState(() => buildInitialValues(fields, defaultValues));
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -30,15 +35,23 @@ export function RecordForm({ title, fields, onSubmit }) {
     try {
       await onSubmit(normalize(fields, values));
       setExpanded(false);
-      setValues(fields.reduce((next, field) => ({ ...next, [field.name]: initialValue(field) }), {}));
     } finally {
       setSaving(false);
     }
   }
 
+  function handleToggle() {
+    setExpanded((current) => {
+      if (!current) {
+        setValues(buildInitialValues(fields, defaultValues));
+      }
+      return !current;
+    });
+  }
+
   return (
     <section className="form-panel">
-      <button className="primary-action" type="button" onClick={() => setExpanded((current) => !current)}>
+      <button className="primary-action" type="button" onClick={handleToggle}>
         <Plus size={16} />
         <span>{title}</span>
       </button>
