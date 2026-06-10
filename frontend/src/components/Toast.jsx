@@ -9,19 +9,24 @@ const ICONS = {
 };
 
 export function Toast() {
-  const { toast, hideToast } = useAppData();
+  const { toasts, hideToast } = useAppData();
 
-  if (!toast) return null;
-
-  const Icon = ICONS[toast.type] || ICONS.info;
+  if (!toasts || toasts.length === 0) return null;
 
   return (
-    <div className={`toast toast-${toast.type}`}>
-      <Icon size={18} />
-      <span className="toast-message">{toast.message}</span>
-      <button className="toast-close" type="button" onClick={hideToast} aria-label="Close">
-        <X size={16} />
-      </button>
+    <div className="toast-stack">
+      {toasts.map((toast) => {
+        const Icon = ICONS[toast.type] || ICONS.info;
+        return (
+          <div key={toast.id} className={`toast toast-${toast.type}`}>
+            <Icon size={18} />
+            <span className="toast-message">{toast.message}</span>
+            <button className="toast-close" type="button" onClick={() => hideToast(toast.id)} aria-label="Close">
+              <X size={16} />
+            </button>
+          </div>
+        );
+      })}
     </div>
   );
 }

@@ -30,20 +30,21 @@ export function AppProvider({ children }) {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [toast, setToast] = useState(null);
+  const [toasts, setToasts] = useState([]);
 
   const showToast = useCallback((message, type = "info", duration = 3000) => {
-    const id = Date.now();
-    setToast({ id, message, type });
+    const id = Date.now() + Math.random();
+    setToasts((current) => [...current, { id, message, type }]);
     if (duration > 0) {
       setTimeout(() => {
-        setToast((current) => (current && current.id === id ? null : current));
+        setToasts((current) => current.filter((t) => t.id !== id));
       }, duration);
     }
+    return id;
   }, []);
 
-  const hideToast = useCallback(() => {
-    setToast(null);
+  const hideToast = useCallback((id) => {
+    setToasts((current) => (id ? current.filter((t) => t.id !== id) : []));
   }, []);
 
   async function refresh() {
@@ -86,8 +87,8 @@ export function AppProvider({ children }) {
   }, []);
 
   const value = useMemo(
-    () => ({ ...state, loading, error, toast, refresh, createRecord, updateRecord, showToast, hideToast }),
-    [state, loading, error, toast, refresh, createRecord, updateRecord, showToast, hideToast],
+    () => ({ ...state, loading, error, toasts, refresh, createRecord, updateRecord, showToast, hideToast }),
+    [state, loading, error, toasts, refresh, createRecord, updateRecord, showToast, hideToast],
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
