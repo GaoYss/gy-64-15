@@ -2,12 +2,14 @@ import { Building2, RefreshCw } from "lucide-react";
 
 import { useAppData } from "../context/AppContext.jsx";
 import { MODULES } from "../modules/navigation.js";
+import { Toast } from "./Toast.jsx";
 
 export function Layout({ activeModule, onModuleChange, children }) {
   const { loading, error, refresh } = useAppData();
 
   return (
     <div className="app-shell">
+      <Toast />
       <aside className="sidebar">
         <div className="brand">
           <Building2 size={26} />

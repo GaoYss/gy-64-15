@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 
+import { useAppData } from "../context/AppContext.jsx";
+
 function initialValue(field, defaultValues) {
   if (defaultValues && defaultValues[field.name] !== undefined) {
     return defaultValues[field.name];
@@ -24,7 +26,8 @@ function normalize(fields, values) {
   }, {});
 }
 
-export function RecordForm({ title, fields, onSubmit, defaultValues }) {
+export function RecordForm({ title, fields, onSubmit, defaultValues, successMessage }) {
+  const { showToast } = useAppData();
   const [expanded, setExpanded] = useState(false);
   const [saving, setSaving] = useState(false);
   const [values, setValues] = useState(() => buildInitialValues(fields, defaultValues));
@@ -33,8 +36,15 @@ export function RecordForm({ title, fields, onSubmit, defaultValues }) {
     event.preventDefault();
     setSaving(true);
     try {
-      await onSubmit(normalize(fields, values));
+      const result = await onSubmit(normalize(fields, values));
       setExpanded(false);
+      if (!result || !result.skipToast) {
+        showToast(successMessage || "Record created successfully", "success");
+      }
+      return result;
+    } catch (err) {
+      showToast(err.message || "Failed to create record. Please try again.", "error", 5000);
+      throw err;
     } finally {
       setSaving(false);
     }

@@ -19,8 +19,14 @@ const columns = [
   { key: "reported_at", label: "Reported" },
 ];
 
+function matchesFilter(customer, filterStatus, filterOwner) {
+  if (filterStatus && customer.status !== filterStatus) return false;
+  if (filterOwner && (customer.owner || "") !== filterOwner) return false;
+  return true;
+}
+
 export function CustomersPage() {
-  const { customers, createRecord } = useAppData();
+  const { customers, createRecord, showToast } = useAppData();
   const [filterStatus, setFilterStatus] = useState("");
   const [filterOwner, setFilterOwner] = useState("");
 
@@ -30,11 +36,7 @@ export function CustomersPage() {
   );
 
   const filtered = useMemo(() => {
-    return customers.filter((c) => {
-      if (filterStatus && c.status !== filterStatus) return false;
-      if (filterOwner && (c.owner || "") !== filterOwner) return false;
-      return true;
-    });
+    return customers.filter((c) => matchesFilter(c, filterStatus, filterOwner));
   }, [customers, filterStatus, filterOwner]);
 
   function clearFilters() {
@@ -48,13 +50,24 @@ export function CustomersPage() {
   if (filterStatus) formDefaults.status = filterStatus;
   if (filterOwner) formDefaults.owner = filterOwner;
 
+  async function handleCreate(payload) {
+    const created = await createRecord("customers", payload);
+    if (hasFilter && !matchesFilter(created, filterStatus, filterOwner)) {
+      clearFilters();
+      showToast("Customer added successfully. Filters were cleared to show the new record.", "success");
+      return { skipToast: true };
+    }
+    return { created };
+  }
+
   return (
     <div className="page-stack">
       <RecordForm
         title="Report customer"
         fields={customerFields}
-        onSubmit={(payload) => createRecord("customers", payload)}
+        onSubmit={handleCreate}
         defaultValues={hasFilter ? formDefaults : undefined}
+        successMessage="Customer added successfully"
       />
       <section className="panel">
         <div className="section-heading">

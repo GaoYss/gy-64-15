@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import {
   appointmentApi,
@@ -30,6 +30,21 @@ export function AppProvider({ children }) {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [toast, setToast] = useState(null);
+
+  const showToast = useCallback((message, type = "info", duration = 3000) => {
+    const id = Date.now();
+    setToast({ id, message, type });
+    if (duration > 0) {
+      setTimeout(() => {
+        setToast((current) => (current && current.id === id ? null : current));
+      }, duration);
+    }
+  }, []);
+
+  const hideToast = useCallback(() => {
+    setToast(null);
+  }, []);
 
   async function refresh() {
     setLoading(true);
@@ -71,8 +86,8 @@ export function AppProvider({ children }) {
   }, []);
 
   const value = useMemo(
-    () => ({ ...state, loading, error, refresh, createRecord, updateRecord }),
-    [state, loading, error],
+    () => ({ ...state, loading, error, toast, refresh, createRecord, updateRecord, showToast, hideToast }),
+    [state, loading, error, toast, refresh, createRecord, updateRecord, showToast, hideToast],
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
