@@ -44,7 +44,6 @@ export function RecordForm({ title, fields, onSubmit, defaultValues, successMess
       return result;
     } catch (err) {
       showToast(err.message || "Failed to create record. Please try again.", "error", 5000);
-      throw err;
     } finally {
       setSaving(false);
     }

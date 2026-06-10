@@ -32,9 +32,14 @@ export function AppProvider({ children }) {
   const [error, setError] = useState("");
   const [toasts, setToasts] = useState([]);
 
+  const MAX_TOASTS = 3;
+
   const showToast = useCallback((message, type = "info", duration = 3000) => {
     const id = Date.now() + Math.random();
-    setToasts((current) => [...current, { id, message, type }]);
+    setToasts((current) => {
+      const next = current.length >= MAX_TOASTS ? current.slice(current.length - MAX_TOASTS + 1) : current;
+      return [...next, { id, message, type }];
+    });
     if (duration > 0) {
       setTimeout(() => {
         setToasts((current) => current.filter((t) => t.id !== id));
